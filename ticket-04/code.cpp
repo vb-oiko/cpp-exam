@@ -177,6 +177,78 @@ public:
     }
 };
 
+class Array
+{
+private:
+    int _id;
+    int _capacity;
+    int _size;
+    Integer **_items;
+
+public:
+    Array(int id, int capacity) : _id(id), _capacity(capacity)
+    {
+        _size = 0;
+        _items = new Integer *[capacity];
+    };
+
+    ~Array()
+    {
+        delete (_items);
+    }
+
+    int getId() { return _id; }
+    int getSize() { return _size; }
+
+    void add(Integer *item)
+    {
+        if (_size < _capacity)
+        {
+            _items[_size] = item;
+            _size++;
+            return;
+        }
+
+        throw "Integer adding failed. Array is out of capacity.";
+    }
+
+    Integer *at(int i)
+    {
+        if (i >= 0 && i < _size)
+        {
+            return _items[i];
+        }
+
+        throw "Index out of range.";
+    }
+
+    Integer *find(int value)
+    {
+        for (int i = 0; i < _size; i++)
+        {
+            if (_items[i]->getIntValue() == value)
+            {
+                return _items[i];
+            }
+        }
+
+        return NULL;
+    };
+
+    Integer *find(bool (*callback)(Integer *item))
+    {
+        for (int i = 0; i < _size; i++)
+        {
+            if (callback(_items[i]))
+            {
+                return _items[i];
+            }
+        }
+
+        return NULL;
+    };
+};
+
 enum Representation
 {
     floating,
@@ -250,6 +322,13 @@ int main()
 
     cin >> integer1;
     integer1.printFull();
+
+    Array arr(1, 10);
+    arr.add(&integer1);
+    arr.add(&integer2);
+    arr.add(&integer3);
+
+    arr.find(123456);
 
     return 0;
 }
