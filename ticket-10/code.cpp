@@ -10,6 +10,7 @@ private:
 
 public:
     ExhibitionCenter(string name, string street, int houseNumber) : _name(name), _street(street), _houseNumber(houseNumber) {}
+    ExhibitionCenter() : _name(""), _street(""), _houseNumber(0) {}
     ~ExhibitionCenter() {}
 
     void setName(string name) { _name = name; }
@@ -80,6 +81,7 @@ private:
 
 public:
     Showpiece(int id, string name, ExhibitionCenter *exhibitionCenter) : _id(id), _name(name), _exhibitionCenter(exhibitionCenter) {}
+    Showpiece() : _id(0), _name(""), _exhibitionCenter(NULL) {}
     ~Showpiece(){};
 
     void setId(int id) { _id = id; }
@@ -102,7 +104,49 @@ public:
     {
         cout << _id << ", " << _name << ", " << _exhibitionCenter->getName() << endl;
     }
+
+    friend ostream &operator<<(ostream &output, Showpiece &piece)
+    {
+        output << "id: " << piece.getId()
+               << ", name: " << piece.getName()
+               << ", exhibition center: " << piece.getExhibitionCenter()->getName();
+        return output;
+    }
+
+    friend istream &operator>>(istream &input, Showpiece &piece)
+    {
+        string center_name;
+        string street;
+        int houseNumber;
+        int id;
+        string piece_name;
+
+        cout << "please enter exhibition center name: ";
+        getline(cin, center_name);
+
+        cout << "please enter exhibition center street: ";
+        getline(cin, street);
+        cin.ignore();
+
+        cout << "please enter exhibition center house number: ";
+        cin >> houseNumber;
+
+        cout << "please enter showpiece catalogue number: ";
+        cin >> id;
+
+        cout << "please enter showpiece name: ";
+        getline(cin, piece_name);
+
+        ExhibitionCenter *exhibitionCenter = new ExhibitionCenter(center_name, street, houseNumber);
+        piece.setId(id);
+        piece.setName(piece_name);
+        piece.setExhibitionCenter(exhibitionCenter);
+
+        return input;
+    }
 };
+
+class HouseholdAppliance;
 
 class FoodProduct : public Showpiece
 {
@@ -138,6 +182,8 @@ public:
         setBestBefore(getBestBefore() + 1);
         return temp;
     };
+
+    operator HouseholdAppliance();
 };
 
 class HouseholdAppliance : public Showpiece
@@ -171,7 +217,21 @@ public:
     {
         return getPrice() < product.getPrice();
     };
+
+    operator FoodProduct();
 };
+
+HouseholdAppliance::operator FoodProduct()
+{
+    FoodProduct *fp = new FoodProduct(getId(), getName(), getExhibitionCenter(), 0, "");
+    return *fp;
+}
+
+FoodProduct::operator HouseholdAppliance()
+{
+    HouseholdAppliance *ha = new HouseholdAppliance(getId(), getName(), getExhibitionCenter(), 0, 0, "");
+    return *ha;
+}
 
 Showpiece *inputExhibitionCenterAndShowpiece()
 {
@@ -203,13 +263,97 @@ Showpiece *inputExhibitionCenterAndShowpiece()
     return showpiece;
 }
 
+class Exhibition
+{
+private:
+    string _name;
+    Showpiece **_showpieces;
+    int _capacity;
+    int _size;
+
+public:
+    Exhibition(string name, int capacity) : _name(name), _capacity(capacity)
+    {
+        _size = 0;
+        _showpieces = new Showpiece *[capacity];
+    }
+    ~Exhibition()
+    {
+        delete _showpieces;
+    }
+
+    void add(Showpiece *showpiece)
+    {
+        if (_size < _capacity)
+        {
+            _showpieces[_size] = showpiece;
+            _size++;
+            return;
+        }
+
+        throw "Cannot add a showpiece. No capacity.";
+    }
+
+    Showpiece *operator[](int index)
+    {
+        if (index >= _size || index < 0)
+        {
+            throw "Array index out of bound, exiting";
+        }
+        return _showpieces[index];
+    }
+
+    void print()
+    {
+        cout << "exhibition: " << _name << ", showpieces: [";
+        for (int i = 0; i < _size; i++)
+        {
+            cout << _showpieces[i]->getName();
+            if (i != _size - 1)
+            {
+                cout << ", ";
+            }
+        }
+        cout << "]" << endl;
+    }
+};
+
+template <class T>
+T **removeAllAfter(T **arr, int n)
+{
+    T **result = new T[n];
+    for (int i = 0; i < n; i++)
+    {
+        result[i] = arr[i];
+    }
+
+    delete arr;
+    return result;
+}
+
 int main()
 {
-    // Showpiece *showpiece = inputExhibitionCenterAndShowpiece();
-    // showpiece->print();
-    // showpiece->printShort();
-    // showpiece->getExhibitionCenter()->print();
-    // showpiece->getExhibitionCenter()->printShort();
+    Showpiece *showpiece = inputExhibitionCenterAndShowpiece();
+    showpiece->print();
+    showpiece->printShort();
+    showpiece->getExhibitionCenter()->print();
+    showpiece->getExhibitionCenter()->printShort();
+
+    ExhibitionCenter center1("ACME EXPO", "Main St.", 1);
+    Showpiece piece1(1, "Showpiece1", &center1);
+    center1.print();
+    center1.printShort();
+
+    piece1.print();
+    piece1.printShort();
+
+    HouseholdAppliance piece2(2, "Mixer", &center1, 1, 2.50, "Philips");
+    piece2.print();
+    piece2.printShort();
+
+    FoodProduct piece3(3, "Coca-Cola", &center1, 365, "USA");
+    piece3.print();
+    piece3.printShort();
 
     return 0;
 }
