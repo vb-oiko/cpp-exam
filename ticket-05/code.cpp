@@ -1,7 +1,3 @@
-//
-// Created by AZagorskyi on 8/23/2022.
-//
-
 #include <iostream>
 using namespace std;
 
@@ -252,7 +248,11 @@ int main() {
     CreditAccount creditAccount2(25489, 10000, new Bank("FIDO bank", 777777), "25-04-2022", 5.6);
 
     std::cout << "Account number: " << creditAccount1.getNumber() << ((creditAccount1 < creditAccount2) ?
-                                                                      " LESS than " : " MORE than ") << " - Account number: " << creditAccount2.getNumber() << std::endl;
+
+    " LESS than " : " MORE than ") << " - Account number: " << creditAccount2.getNumber() << std::endl;
+
+    CreditAccount creditAccount1(25488, 7500.5, new Bank("FIDO bank", 777777), "25-04-2022", 10.5);
+    Account *accountUpcasting = &creditAccount1;
 
     ++creditAccount1;
     creditAccount1.print();
@@ -291,6 +291,8 @@ int main() {
                                            "25-04-2022", 12, 25));
 
     client1->getAccountByIndex(1)->print();
+
+    CreditAccount creditAccount1(25488, 7500.5, new Bank("FIDO bank", 777777), "25-04-2022", 10.5);
 
     Account *accountUpcasting = &creditAccount1;
     std::cout << "Account instance of " << ((dynamic_cast<Account*>(accountUpcasting) != nullptr) ?
