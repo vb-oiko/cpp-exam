@@ -337,11 +337,11 @@ public:
         delete _items;
     }
 
-    void add(Excursion *shop)
+    void add(Excursion *excursion)
     {
         if (_size < _capacity)
         {
-            _items[_size] = shop;
+            _items[_size] = excursion;
             _size++;
             return;
         }
